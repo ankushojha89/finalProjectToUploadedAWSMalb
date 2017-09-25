@@ -1,0 +1,13 @@
+.padding20{
+    padding: 20px 0;
+}
+
+#employeesTable th, td {
+    text-align: center;
+    vertical-align: middle;
+  word-break: break-all;
+}
+
+.portfolio-item{
+    padding-bottom: 20px;
+}

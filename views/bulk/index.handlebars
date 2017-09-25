@@ -1,0 +1,52 @@
+ <a class="btn btn-success float-right btn-sm" href="/admin">Go to admin</a>
+ <h1 class="padding20">Bulk Employees Upload</h1> 
+
+<div id="messages">
+      
+</div>
+<div class="row">
+<div class="col-lg-9">
+ <form id="bulkuploads"  class="row padding20" method="post" action="/bulkfile" enctype="multipart/form-data">
+ <div class="col-lg-12">
+    <div class="form-group row">
+    <label for="desc" class="col-sm-2 col-form-label">Select CSV file</label>
+    <div class="col-sm-10">
+     <input accept=".csv" type="file" class="form-control-file" id="csvUpload" name="csvUpload">        
+    </div>
+  </div>    
+    <button type="submit" class="btn btn-lg btn-info">Upload file</button>        
+  </div>  
+</form>
+</div>
+<div class="col-lg-3">
+<button type="button" class="btn btn-md float-right" onclick="getBulkUploadsList();" >Refresh</button>
+
+</div>
+
+</div>
+
+
+<div class="row">
+<table id="bulkUploadTable" class="table table-hover">
+  <thead class="thead-default">
+    <tr>
+       <th>#</th>
+      <th>File Id</th>
+      <th>UploadedAt</th>
+      <th>CompletedAt</th>
+      <th>Total Records</th>
+      <th>Inserted</th>   
+      <th>Updated</th> 
+      <th>Rejected</th>   
+      <th>Status</th>
+      <th>Download Files</th>  
+    </tr>
+  </thead>
+  <tbody>   
+       </tbody>
+</table>
+
+</div>
+
+
+<script src="./../fronthand/js/bulkfile.js"></script>
