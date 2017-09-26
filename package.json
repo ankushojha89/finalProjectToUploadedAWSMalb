@@ -17,6 +17,7 @@
   "author": "ankush ojha",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "2.122.0",
     "body-parser": "1.18.2",
     "express": "4.15.4",
     "express-handlebars": "3.0.0",
@@ -26,6 +27,7 @@
     "lodash": "4.17.4",
     "mongodb": "2.2.31",
     "multer": "1.3.0",
+    "request": "2.82.0",
     "winston": "2.3.1"
   }
 }

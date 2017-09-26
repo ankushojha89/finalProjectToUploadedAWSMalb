@@ -22,7 +22,11 @@ var options ={
 
 
 // database details pooling
-if(process.env.NODE_ENV==='devlopment'){  
+//mongodb://<dbuser>:<dbpassword>@ds147034.mlab.com:47034/employeedb
+if(config.database.mLab==true){
+  process.env.MONGODB_URI=`${config.database.dbType}://${config.database.mLabDbUserName}:${config.database.mLabDbPassword}@${config.database.mLabHost}:${config.database.mLabPort}/${config.database.mLabDBName}`;
+  
+}else if(process.env.NODE_ENV==='devlopment'){  
   process.env.MONGODB_URI=`${config.database.dbType}://${config.database.dbHost}:${config.database.dbPort}/${config.database.dbName}`;
 }else{
   process.env.MONGODB_URI=`${config.database.dbType}://${config.database.dbHost}:${config.database.dbPort}/${config.database.dbName}`;

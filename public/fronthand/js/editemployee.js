@@ -1,4 +1,6 @@
   //  $( document ).ready() block.
+  var serverUrl=`https://elasticbeanstalk-us-east-2-048453914188.s3.us-east-2.amazonaws.com`;
+  var profileFolder=serverUrl+'/profileimages';
   var id ;
   $( document ).ready(function() {
     tinymce.init({
@@ -26,7 +28,7 @@ function getEmployeeDetails(id){
                 $('#designation').val(data.employee.designation);
                 $('#short_desc').val(data.employee.short_desc);
                 $('#desc').val(data.employee.desc);
-                $('#oldprofile').attr('src',`/images/profileimages/${data.employee.profileimage}`);
+                $('#oldprofile').attr('src',`${profileFolder}/${data.employee.profileimage}`);
               
         }
     });

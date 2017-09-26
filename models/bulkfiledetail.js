@@ -3,7 +3,7 @@ var db = require('./../config/dbconfig');
 const {ObjectID}=require('mongodb');
 
 exports.all = function(cb) {     
-    db.collectionBulkFile().find().toArray(function(err, docs) {
+    db.collectionBulkFile().find().sort( { _id: -1 } ).toArray(function(err, docs) {
       cb(err, docs);
     })
 }

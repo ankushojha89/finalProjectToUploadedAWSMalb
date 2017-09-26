@@ -6,14 +6,25 @@
     "database":{
         "dbType" : "mongodb",
         "dbHost" : "localhost",
-        "dbPort" : "27017",
-        "dbUserName":"ankush",
-        "dbPassword":"ankush",
+        "dbPort" : "27017",        
         "dbName":"EmployeeDB",
         "testdbname":"EmployeeDB",
         "tableName":"Employee",
-        "bulktableName":"BulkFileDetail"
-        
+        "bulktableName":"BulkFileDetail",
+            "mLab":true,
+            "mLabHost":"ds147034.mlab.com",
+            "mLabPort":"47034",
+            "mLabDBName":"employeedb",
+            "mLabDbUserName":"ankush",
+            "mLabDbPassword":"ankush"
+    },
+    "myAWS":{
+        "baseurl":"https://elasticbeanstalk-us-east-2-048453914188.s3.us-east-2.amazonaws.com",
+        "Bucket": "elasticbeanstalk-us-east-2-048453914188",
+        "profileFolder": "profileimages",
+        "successfiles": "successfiles",
+        "errorfiles": "errorfiles",
+        "uploadedfiles": "uploadedfiles"
     }
 }
 

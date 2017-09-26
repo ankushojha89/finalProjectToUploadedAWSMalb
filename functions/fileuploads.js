@@ -1,16 +1,21 @@
-var {logger} = require('./../config/default');
+var {config,logger} = require('./../config/default');
 var db = require('./../config/dbconfig');
-
+var request = require('request');
 const csv = require('fast-csv');
 const fs = require('fs');
 const {ObjectID}=require('mongodb');
 const _=require('lodash');
-
-
 const  BulkFileDetail=require('./../models/bulkfiledetail');
 
 
+var AWS = require('aws-sdk');
+AWS.config.loadFromPath('./config/s3config.json');
+var s3 = new AWS.S3();
+var s3Bucket = new AWS.S3( { params: {Bucket: config.myAWS.Bucket} } )
+
 var fileHeaders= ['_id','name', 'email', 'designation','short_desc','desc'];
+
+
 
 /**
  * 
@@ -24,12 +29,21 @@ function validateEmail(email) {
 csvUploads =(efilename,fileDBId)=>{
     logger.info(''+fileDBId);
     var totalCount=0, vaildArray = [], errorArray = [];
-    var filePath=process.env.PROJECT_ROOT+ `/public/files/bulkuploads/${efilename}`;
-    var bulk = db.collectionEmployee().initializeUnorderedBulkOp();
 
-    logger.info(`CSV File processing working... ${efilename}`);  
+
+    var filePath=`${config.myAWS.baseurl}/${config.myAWS.uploadedfiles}/${efilename}`;
+console.log(filePath);
+
+    var bulk = db.collectionEmployee().initializeUnorderedBulkOp();
+    logger.info(`AWS CSV File processing please wait... ${efilename}`);
+
+    var params = {Key: `${config.myAWS.uploadedfiles}/${efilename}`};
+    
+    const s3Stream =  s3Bucket.getObject(params).createReadStream()
+    
     csv
-    .fromPath(filePath, {headers: fileHeaders,ignoreEmpty: true})
+    .fromStream(
+        s3Stream, {headers: fileHeaders,ignoreEmpty: true})
     .validate((data)=>{
         var validStatus =true;
             totalCount++;   
@@ -84,17 +98,39 @@ csvUploads =(efilename,fileDBId)=>{
             vaildArray.push(data);
         })
         .on('end', function() {  // when all completed 
-     //       console.log(vaildArray);    console.log(errorArray);      console.log(totalCount);
+       //    console.log(vaildArray);    console.log(errorArray);      console.log(totalCount);
 
             bulk.execute(function(error, result) {
                 let resultJSON = JSON.stringify(vaildArray, null, 2); 
                     let errorArrayJSON = JSON.stringify(errorArray, null, 2); 
-                    fs.writeFileSync(process.env.PROJECT_ROOT+ `/public/files/bulkuploadsrejected/${efilename}.json`, errorArrayJSON);  
-                    fs.writeFileSync(process.env.PROJECT_ROOT+ `/public/files/bulkuploadssuccess/${efilename}.json`, resultJSON);
+          
+                    var dataSuccess = {Key: `${config.myAWS.successfiles}/${efilename}.json`, acl: 'public-read',Body:resultJSON};
+                    var dataReject = {Key: `${config.myAWS.errorfiles}/${efilename}.json`, acl: 'public-read',Body:resultJSON};
+                    
+                    s3Bucket.upload (dataSuccess, function (err, data) {
+                                      if (err) {
+                                       logger.error(`Error in AWS Success file Uploading File...`,efilename); 
+                                       logger.error(`Error in AWS Success file Uploading error details...`,err);           
+                                        } 
+                                        if (data) {
+                                        logger.info(`Success file uploaded to AWS server At url ${data.Location}`);    
+                                 }
+                    });
 
-                    var details={
+                    s3Bucket.upload (dataReject, function (err, data) {
+                        if (err) {
+                         logger.error(`Error in AWS Rejected file Uploading File...`,efilename); 
+                         logger.error(`Error in AWS Rejected file Uploading error details...`,err);           
+                          } 
+                          if (data) {
+                          logger.info(`Rejected file uploaded to AWS server At url ${data.Location}`);    
+                   }
+                    });                  
+                  
+                  
+                    var details={      
                         successrecords:result.nUpserted,
-                        updatedrecords:result.nModified,
+                        updatedrecords:result.nModified,                 
                         totalrecords:totalCount,
                         errorrecords:errorArray.length,
                         errorfile:efilename+'.json',

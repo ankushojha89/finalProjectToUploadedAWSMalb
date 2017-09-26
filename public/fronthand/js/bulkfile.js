@@ -1,5 +1,12 @@
+var serverUrl=`https://elasticbeanstalk-us-east-2-048453914188.s3.us-east-2.amazonaws.com`;
+var uploadedFolderUrl=serverUrl+'/uploadedfiles';
+var successFolderUrl=serverUrl+'/successfiles';
+var errorFolderUrl=serverUrl+'/errorfiles';
+
+
 $( document ).ready( function() {
     // your code here
+    
   getBulkUploadsList();       
     bulkFormSubmitted();      
 } );
@@ -64,13 +71,13 @@ function getBulkUploadsList(){
                   <td>${item.updatedrecords}</td>
                   <td >${item.errorrecords}</td>
                   <td width="10%">${item.status}</td>                  
-                    <td><a class="btn btn-info" target="_blank" href="./../files/bulkuploads/${item.filename}">Upload</a>`;
+                    <td><a class="btn btn-info" target="_blank" href="${uploadedFolderUrl}/${item.filename}">Upload</a>`;
                   if(item.successfile!=null){
-                      temp=temp+`<a class="btn btn-success" target="_blank" href="./../files//bulkuploadssuccess/${item.successfile}">Success</a>`;
+                      temp=temp+`<a class="btn btn-success" target="_blank" href="${successFolderUrl}/${item.successfile}">Success</a>`;
                       
                   }
                   if(item.errorfile!=null){
-                      temp=temp+`<a class="btn btn-danger" target="_blank" href="./../files/bulkuploadsrejected/${item.errorfile}">Rejected</a>`;
+                      temp=temp+`<a class="btn btn-danger" target="_blank" href="${errorFolderUrl}/${item.errorfile}">Rejected</a>`;
                   }
                   temp=temp+`    </td>    </tr>`;
                 $('#bulkUploadTable tbody').append(temp);

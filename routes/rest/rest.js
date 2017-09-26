@@ -5,6 +5,15 @@ const {ObjectID}=require('mongodb');
 const multer=require('multer');
 const _=require('lodash');
 
+const fs=require('fs');
+/**
+ * S3 AWS 
+ */
+
+var AWS = require('aws-sdk');
+AWS.config.loadFromPath('./config/s3config.json');
+var s3 = new AWS.S3();
+
 // file upload locations
 var upload=multer({dest:'./public/images/profileimages'});
 var csvupload=multer({dest:'./public/files/bulkuploads'});
@@ -71,6 +80,8 @@ router.get('/:id',(req,res,next)=>{
     if(req.file){
         logger.info(`${req.ip} Locading... `,req.file.filename);       
         body.profileimage=req.file.filename;
+        uploadProfileImageToAWS(body.profileimage,req.file.path);      
+
     }
     body.updatedAt=new Date();
     body.createdAt= body.updatedAt;
@@ -85,6 +96,10 @@ router.get('/:id',(req,res,next)=>{
     });      
    } 
  });
+
+
+
+
 /*REST Delete request */
  router.delete('/:id',(req,res,next)=>{         
     var id=req.params.id;
@@ -128,6 +143,7 @@ router.patch('/:id',upload.single('profileimage'),(req,res,next)=>{
             if(req.file){
                 console.log("Locading..."+req.file.filename);
                 body.profileimage=req.file.filename;
+                uploadProfileImageToAWS(body.profileimage,req.file.path);  
             } 
             body.updatedAt=new Date();
 
@@ -142,7 +158,43 @@ router.patch('/:id',upload.single('profileimage'),(req,res,next)=>{
            }       
        });
    
+/**
+ * this function upload image to aws s3 ... hahahaahahahahahhaa
+ * @param {*} imageName 
+ * @param {*} imagePath 
+ */
 
+function uploadProfileImageToAWS(profileimage,profileimagePath){
+    
+    var s3Bucket = new AWS.S3( { params: {Bucket: config.myAWS.Bucket} } )
+    logger.info(`Locading image to AWS... `,profileimage);   
+    fs.readFile(profileimagePath, function (err,uploadedImage) {
+        if (err) {          
+          logger.info(`Error before AWS Uploading started ${profileimage}`); 
+          return next(err);
+        }
+
+        var data = {Key: `${config.myAWS.profileFolder}/${profileimage}`, acl: 'public-read',Body:uploadedImage};
+        s3Bucket.upload (data, function (err, data) {
+            
+                        fs.unlink(profileimagePath, function (err) {
+                            if (err) {                    
+                                logger.error(` Error in Temp File Deletion.. `,profileimage);   
+                                logger.error(` Error details for Temp File Deletion .. `,err);                       
+                            }
+                            logger.info(`Temp Profile Image File Deleted... `,profileimage); 
+                          
+                        });
+                            if (err) {
+                           logger.error(` Error in Profile Image Uploading File to AWS...`,profileimage); 
+                           logger.error(` Error in Profile Image AWS Uploading details...`,err);           
+                            } 
+                            if (data) {
+                            logger.info(` File(${profileimage}) uploaded to AWS server At url ${data.Location}`);    
+                         }
+                        });  
+    });
+    }
 
 
 module.exports=router;
