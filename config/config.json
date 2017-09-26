@@ -1,6 +1,6 @@
 {
     "server":{
-        "logfilename" : "server_system.log",
+        "logfilename" : "emp_dB_server_log.log",
         "serverPort" : "3100"
     },
     "database":{

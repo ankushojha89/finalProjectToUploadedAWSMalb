@@ -9,7 +9,7 @@ const express = require('express');
 var logger = new (winston.Logger)({
     transports: [
       new (winston.transports.Console)()
-     //, new (winston.transports.File)({ filename: config.server.logfilename })
+     , new (winston.transports.File)({ filename: config.server.logfilename })
     ]
   });
 
