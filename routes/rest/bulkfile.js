@@ -12,7 +12,9 @@ const fs=require('fs');
  */
 
 var AWS = require('aws-sdk');
-AWS.config.loadFromPath('./config/s3config.json');
+//AWS.config.loadFromPath('./config/s3config.json');
+console.log("process.env.AWS_ACCESS_KEY_ID",process.env.AWS_ACCESS_KEY_ID);
+console.log("process.env.AWS_SECRET_ACCESS_KEY",process.env.AWS_SECRET_ACCESS_KEY);
 var s3 = new AWS.S3();
 /**
  * uploads functions 
