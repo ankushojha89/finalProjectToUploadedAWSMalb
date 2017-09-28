@@ -68,7 +68,7 @@ function getBulkUploadsList(){
                   <td>${item.updatedAt}</td>
                   <td >${item.totalrecords}</td>
                   <td >${item.successrecords}</td>
-                  <td>${item.updatedrecords}</td>
+                  <td>${item.updatedrecords}</td>                 
                   <td >${item.errorrecords}</td>
                   <td width="10%">${item.status}</td>                  
                     <td><a class="btn btn-info" target="_blank" href="${uploadedFolderUrl}/${item.filename}">Upload</a>`;

@@ -55,32 +55,60 @@ console.log(filePath);
         data.short_desc=data.short_desc.trim();
         data.desc=data.desc.trim();
 
+        var rejectionError="SERVER REJECTED:";  
+
+        
+        if (data.email.length>0&&!validateEmail(data.email)) {
+            rejectionError=rejectionError+" Valid Email Required";
+            validStatus=false;
+        }
         if(data._id==='null'){           
             data._id=new ObjectID();
             data.createdAt= new Date();
-            if (!validateEmail(data.email)||!(data.name.length>0 && data.name.length<20)) {
+            if (!(data.name.length>0 && data.name.length<20)) {
+                rejectionError=rejectionError+" NAME(length<20) Required";
                 validStatus=false;
-            }
+            }            
         }else if(!ObjectID.isValid(data._id)){
+            rejectionError=rejectionError+" Not A Valid ID";
             validStatus=false;
         }else{
             data._id=new ObjectID(data._id);
         }
+
+        var  myDataTest=_.pickBy(data);
+         myDataTest=_.pick(myDataTest,['name', 'email', 'designation','short_desc','desc']);
+   
+         if(_.isEmpty(myDataTest)){ 
+            rejectionError=rejectionError+" NO USER DATA FOUND";            
+            validStatus=false;
+        }
+
+        if(validStatus===false){
+            data.ERRORS=rejectionError; 
+        }
         return validStatus;
         }).on("data-invalid", function(data){
             
-            var rejectionError="SERVER REJECTED:";            
-            if(!(data.name.length>0 && data.name.length<20)){
-            rejectionError=rejectionError+" NAME(length<20) Required";
-            }
-            if(!validateEmail(data.email)){
-                rejectionError=rejectionError+" Valid Email Required";
-            }
-            if(!ObjectID.isValid(data._id)){
-                rejectionError=rejectionError+" Not A Valid ID";
-            }
+            var rejectionError="SERVER REJECTED:";             
+                       
+            // if(!(data.name.length>0 && data.name.length<20)){
+            // rejectionError=rejectionError+" NAME(length<20) Required";
+            // }
+            // if (data.email.length>0&&!validateEmail(data.email)) {
+            //     rejectionError=rejectionError+" Valid Email Required";
+            // }
+            
+            // if(!ObjectID.isValid(data._id)){
+            //     rejectionError=rejectionError+" Not A Valid ID";
+            // }
 
-            data.ERRORS=rejectionError; 
+    //         var  myDataTest=_.pickBy(data);
+    //         myDataTest=_.pick(myDataTest,['name', 'email', 'designation','short_desc','desc']);
+    //    if(_.isEmpty(myDataTest)){
+    //             rejectionError=rejectionError+" NO USER DATA FOUND";
+    //        }
+            // data.ERRORS=rejectionError; 
             errorArray.push(data);
             
         })
@@ -88,12 +116,21 @@ console.log(filePath);
 
             data.profileimage='noimage.jpg';
             data=_.pickBy(data);
-            
-            bulk.find({_id:data._id}).upsert().updateOne({
-                $set:data,              
-                $currentDate: { updatedAt:true}            
-            });
 
+            // var myDataTest=_.pick(data,['name', 'email', 'designation','short_desc','desc']);
+
+            // console.log("-------------",JSON.stringify(myDataTest,undefined,2));
+
+            // if(_.isEmpty(myDataTest)){
+            //     console.log("--------Ab Delete Kar Lo App-----"); 
+            //     bulk.find( {_id:data._id} ).removeOne();
+            // }else{
+                bulk.find({_id:data._id}).upsert().updateOne({
+                    $set:data,              
+                    $currentDate: { updatedAt:true}            
+                });
+           //}         
+            
 
             vaildArray.push(data);
         })
@@ -101,36 +138,38 @@ console.log(filePath);
        //    console.log(vaildArray);    console.log(errorArray);      console.log(totalCount);
 
             bulk.execute(function(error, result) {
-                let resultJSON = JSON.stringify(vaildArray, null, 2); 
+
+                    let resultJSON = JSON.stringify(vaildArray, null, 2); 
                     let errorArrayJSON = JSON.stringify(errorArray, null, 2); 
           
                     var dataSuccess = {Key: `${config.myAWS.successfiles}/${efilename}.json`, acl: 'public-read',Body:resultJSON};
-                    var dataReject = {Key: `${config.myAWS.errorfiles}/${efilename}.json`, acl: 'public-read',Body:resultJSON};
+                    var dataReject = {Key: `${config.myAWS.errorfiles}/${efilename}.json`, acl: 'public-read',Body:errorArrayJSON};
                     
-                    s3Bucket.upload (dataSuccess, function (err, data) {
+                    s3Bucket.upload (dataSuccess, function (err, sdata) {
                                       if (err) {
                                        logger.error(`Error in AWS Success file Uploading File...`,efilename); 
                                        logger.error(`Error in AWS Success file Uploading error details...`,err);           
                                         } 
-                                        if (data) {
-                                        logger.info(`Success file uploaded to AWS server At url ${data.Location}`);    
+                                        if (sdata) {
+                                        logger.info(`Success file uploaded to AWS server At url ${sdata.Location}`);    
                                  }
                     });
 
-                    s3Bucket.upload (dataReject, function (err, data) {
+                    s3Bucket.upload (dataReject, function (err, rdata) {
                         if (err) {
                          logger.error(`Error in AWS Rejected file Uploading File...`,efilename); 
                          logger.error(`Error in AWS Rejected file Uploading error details...`,err);           
                           } 
-                          if (data) {
-                          logger.info(`Rejected file uploaded to AWS server At url ${data.Location}`);    
+                          if (rdata) {
+                          logger.info(`Rejected file uploaded to AWS server At url ${rdata.Location}`);    
                    }
                     });                  
-                  
-                  
+          
                     var details={      
                         successrecords:result.nUpserted,
-                        updatedrecords:result.nModified,                 
+                        updatedrecords:result.nModified,  
+                        removedrecords:result.nRemoved,   
+                        nMatchedRecords:result.nMatched,               
                         totalrecords:totalCount,
                         errorrecords:errorArray.length,
                         errorfile:efilename+'.json',

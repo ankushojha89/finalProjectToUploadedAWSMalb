@@ -42,7 +42,7 @@ router.get('/', function(req, res, next) {
         if(err){
             err.message='Error in getting all bulk file list';
             err.status = 400;
-            next(err);   
+           return next(err);   
         }                   
         res.send({docs});
       })
@@ -109,6 +109,8 @@ router.post('/', csvupload.single('csvUpload') ,function(req, res, next) {
         successrecords:0,
         errorrecords:0,
         updatedrecords:0,
+        removedrecords:0,  
+        nMatchedRecords:0,
         uploadedAt:new Date(),
         updatedAt:new Date()
     };

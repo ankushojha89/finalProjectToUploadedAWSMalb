@@ -7,10 +7,11 @@ findById = function(id,cb) {
     });
 }
 exports.all = function(cb) {     
-    db.collectionEmployee().find().sort( { _id: -1 } ).toArray(function(err, employees) {
+    db.collectionEmployee().find().sort( { updatedAt: -1 } ).toArray(function(err, employees) {
       cb(err, employees);
     })
 }
+
  
 exports.findById=findById;
 
