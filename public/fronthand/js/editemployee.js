@@ -22,7 +22,6 @@ function getEmployeeDetails(id){
         url: '/rest/'+id,       
         success: function(data) {
                 console.log(data.employee.name);
-
                 $('#name').val(data.employee.name);
                 $('#email').val(data.employee.email);
                 $('#designation').val(data.employee.designation);
@@ -30,6 +29,15 @@ function getEmployeeDetails(id){
                 $('#desc').val(data.employee.desc);
                 $('#oldprofile').attr('src',`${profileFolder}/${data.employee.profileimage}`);
               
+        },
+        error: function (data) {   
+            $('#name').val("No Data Found");
+            $('#email').val("No Data Found");
+            $('#designation').val("No Data Found");
+            $('#short_desc').val("No Data Found");
+            $('#desc').val("No Data Found");
+            $('#oldprofile').attr('src',`${profileFolder}/noimage.jpg`);
+          
         }
     });
 }

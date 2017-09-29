@@ -18,7 +18,13 @@ function listOfEmployees(){
               $('#employeesTable tbody').empty();
 
                  $.each(data.employees, function(i, item) {
-                    console.log(item);       
+                    console.log(item);    
+                    item.email=item.email||"-";
+                    item.designation=item.designation||"-";
+                    item.createdAt=item.createdAt||"-";
+                    item.updatedAt=item.updatedAt||"-";
+                    item.name=item.name||"-";
+
                     var temp=`<tr><th scope="row">${i+1}</th>
                     <td width="10%"><img class="rounded-circle img-thumbnail" src="${profileFolder}/${item.profileimage}" alt="${item.name}"></td>
                     <td>${item.name}</td>
